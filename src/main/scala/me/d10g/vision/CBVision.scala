@@ -46,7 +46,7 @@ object CBVision extends App with OpenCVUtils with JsonUtils with CliUtils {
 					row <- 0 to hist.rows() - 1
 					col <- 0 to hist.cols() - 1
 				} yield {
-					hist.get(row, col)(0)
+					hist.get(row, col)(0).toInt
 				}
 
 			val photo = Photo(
