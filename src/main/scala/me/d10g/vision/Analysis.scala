@@ -9,7 +9,7 @@ case class Photo(filename: String,
                  x: Int,
                  y: Int,
                  histogram: Array[Double],
-                 faces: List[Face])
+                 faces: Array[Face])
 
 case class Face(x: Int, y: Int, w: Int, h: Int)
 
@@ -32,32 +32,33 @@ object Analysis {
 		b_hist
 	}
 
-	def getFaces(image: Mat): List[Face] = {
+	def getFaces(image: Mat): Array[Face] = {
 
 		val faceDetector = new CascadeClassifier(getClass.getResource("/lbpcascade_frontalface.xml").getPath)
 
 		val faceDetections = new MatOfRect
 		faceDetector.detectMultiScale(image, faceDetections)
 
-		var faceList: List[Face] = List()
+		val faceList: Array[Face] =
+			for {
+				rect <- faceDetections.toArray
+			} yield {
 
-		for (rect <- faceDetections.toArray) {
+				Core.rectangle(
+					image,
+					new Point(rect.x, rect.y),
+					new Point(rect.x + rect.width,
+						rect.y + rect.height),
+					new Scalar(0, 255, 0)
+				)
 
-			Core.rectangle(
-				image,
-				new Point(rect.x, rect.y),
-				new Point(rect.x + rect.width,
-					rect.y + rect.height),
-				new Scalar(0, 255, 0)
-			)
-
-			faceList ::= new Face(
-				rect.x,
-				rect.y,
-				rect.width,
-				rect.height
-			)
-		}
+				new Face(
+					rect.x,
+					rect.y,
+					rect.width,
+					rect.height
+				)
+			}
 
 		faceList
 	}
