@@ -8,12 +8,14 @@ import org.opencv.objdetect.CascadeClassifier
 case class Photo(filename: String,
                  x: Int,
                  y: Int,
-                 histogram: Array[Double],
+                 histogram: Array[Int],
                  faces: Array[Face])
 
 case class Face(x: Int, y: Int, w: Int, h: Int)
 
 object Analysis {
+
+	val HistogramNormRange: Int = 1024
 
 	def getRGBHistogram(image: Mat): Mat = {
 		val cvtImage = new Mat()
@@ -25,11 +27,13 @@ object Analysis {
 
 		val histSize  = new MatOfInt(256)
 		val histRange = new MatOfFloat(0f, 256f)
-		val b_hist    = new Mat
+		val hist    = new Mat
 
-		Imgproc.calcHist(bgr_planes, new MatOfInt(0), new Mat, b_hist, histSize, histRange, false)
+		Imgproc.calcHist(bgr_planes, new MatOfInt(0), new Mat, hist, histSize, histRange, false)
 
-		b_hist
+		Core.normalize(hist, hist, 0, HistogramNormRange, Core.NORM_MINMAX, -1 )
+
+		hist
 	}
 
 	def getFaces(image: Mat): Array[Face] = {
