@@ -11,6 +11,7 @@ object CBVision extends App with OpenCVUtils with JsonUtils with CliUtils {
 		val optionMap = parseArgs(Map(), args.toList)
 		val options   = getOptions(optionMap)
 
+
 		if (options.inputDir == None) {
 			Console.err.println(s"Missing Input Directory")
 			sys.exit()
@@ -40,20 +41,19 @@ object CBVision extends App with OpenCVUtils with JsonUtils with CliUtils {
 
 			val hist = Analysis.getRGBHistogram(image)
 
-			val histogram = new Array[Double](hist.rows())
-
-			for {
-				row <- 0 to hist.rows() - 1
-				col <- 0 to hist.cols() - 1
-			} yield {
-				histogram(row) = hist.get(row, col)(0)
-			}
+			val histogram =
+				for {
+					row <- 0 to hist.rows() - 1
+					col <- 0 to hist.cols() - 1
+				} yield {
+					hist.get(row, col)(0)
+				}
 
 			val photo = Photo(
 				file.getName,
 				image.size().width.toInt,
 				image.size.height.toInt,
-				histogram,
+				histogram.toArray,
 				Analysis.getFaces(image)
 			)
 
